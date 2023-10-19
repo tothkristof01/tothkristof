@@ -5,7 +5,7 @@ def regisztracio():
     felhasznalo_email = felhasznalonev()
     felhasznalo_jelszo = jelszo_keres()
 
-    if not jelszo_ellenorzes(felhasznalo_jelszo, 3):
+    if not jelszo_ellenorzes(felhasznalo_jelszo, 3, "Kérem ismét a jelszót: "):
         ok_regisztracio = False
 
     if ok_regisztracio:
@@ -20,6 +20,17 @@ def felhasznalonev():
     while " " in felhasznalo_email or "@" not in felhasznalo_email or "." not in felhasznalo_email:
         felhasznalo_email = input("Nem jó email!! \nKérem az email címét: ")
     return felhasznalo_email
+
+
+def felhasznalo_ellenorzese(felhasznalo):
+    jelszo = ""
+    with open("jelszo.txt", "r", encoding="utf-8") as fajl:
+        for sor in fajl:
+            lista = (sor.strip())
+            user = lista.split(";")
+            if user[0] == felhasznalo:
+                jelszo = user[1]
+    return jelszo
 
 
 def jelszo_keres():
@@ -58,11 +69,11 @@ def jelszo_keres():
     return felhasznalo_jelszo
 
 
-def jelszo_ellenorzes(felhasznalo_jelszo, probalkozas):
+def jelszo_ellenorzes(felhasznalo_jelszo, probalkozas, uzenet):
     i = 1
-    jelszo2 = input("Kérem ismét a jelszót: ")
+    jelszo2 = input(uzenet)
     while jelszo2 != felhasznalo_jelszo and i < probalkozas:
-        jelszo2 = input("Kérem ismét a jelszót: ")
+        jelszo2 = input(uzenet)
         i += 1
     if jelszo2 == felhasznalo_jelszo:
         ok_jelszo = True
@@ -72,12 +83,25 @@ def jelszo_ellenorzes(felhasznalo_jelszo, probalkozas):
 
 
 def beleptetes():
-    pass
+    ok_belepes = True
+    jelszo = felhasznalo_ellenorzese(felhasznalonev())
+    if jelszo == "":
+        print("Nincs ilyen felhasznaló, regisztrálj!")
+        ok_belepes = False
+    else:
+        if not jelszo_ellenorzes(jelszo, 3, "Kérem a jelszót: "):
+            print("Nem megfelelő a jelszó!")
+            ok_belepes = False
+    return ok_belepes
 
 
 # Innen indul a program
-if regisztracio():
-    print("Sikerült a regisztráció\n")
-    beleptetes()
-else:
-    print("Sikertelen regisztráció\nPróbálja újra")
+if __name__ == "__main__":
+    if regisztracio():
+        print("Sikerült a regisztráció\n Most beléptetjük!")
+        if beleptetes():
+            print("Szoszi báttya!!")
+        else:
+            print("NO YOU!")
+    else:
+        print("Sikertelen regisztráció\nPróbálja újra")
