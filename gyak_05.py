@@ -3,6 +3,7 @@
 def regisztracio():
     ok_regisztracio = True
     felhasznalo_email = felhasznalonev()
+    # jelszó automatikus generálása
     felhasznalo_jelszo = jelszo_keres()
 
     if not jelszo_ellenorzes(felhasznalo_jelszo, 3, "Kérem ismét a jelszót: "):
@@ -20,17 +21,6 @@ def felhasznalonev():
     while " " in felhasznalo_email or "@" not in felhasznalo_email or "." not in felhasznalo_email:
         felhasznalo_email = input("Nem jó email!! \nKérem az email címét: ")
     return felhasznalo_email
-
-
-def felhasznalo_ellenorzese(felhasznalo):
-    jelszo = ""
-    with open("jelszo.txt", "r", encoding="utf-8") as fajl:
-        for sor in fajl:
-            lista = (sor.strip())
-            user = lista.split(";")
-            if user[0] == felhasznalo:
-                jelszo = user[1]
-    return jelszo
 
 
 def jelszo_keres():
@@ -82,26 +72,54 @@ def jelszo_ellenorzes(felhasznalo_jelszo, probalkozas, uzenet):
     return ok_jelszo
 
 
+def felhasznalo_ellenorzese(felhasznalo):
+    jelszo = ""
+    with open("jelszo.txt", "r", encoding="UTF-8") as fajl:
+        for sor in fajl:
+            lista = sor.strip()
+            user = lista.split(";")
+            if user[0] == felhasznalo:
+                jelszo = user[1]
+    return jelszo
+
+
 def beleptetes():
     ok_belepes = True
     jelszo = felhasznalo_ellenorzese(felhasznalonev())
     if jelszo == "":
-        print("Nincs ilyen felhasznaló, regisztrálj!")
+        print("Nincs ilyen felhasználó, regisztálj:")
         ok_belepes = False
     else:
-        if not jelszo_ellenorzes(jelszo, 3, "Kérem a jelszót: "):
+        if not jelszo_ellenorzes(jelszo, 3, "Kérem a jelszót"):
             print("Nem megfelelő a jelszó!")
             ok_belepes = False
     return ok_belepes
 
 
+def jelszo_generalasa(hossz, kisbetu, nagybetu, szam):
+    import string
+    import random
+    jelszo = ""
+    karaktersor = ""
+    if kisbetu:
+        karaktersor = karaktersor + string.ascii_lowercase
+    if nagybetu:
+        karaktersor = karaktersor + string.ascii_uppercase
+    if szam:
+        karaktersor = karaktersor + string.digits
+    for _ in range(hossz):
+        jelszo = jelszo + karaktersor[random.randint(0, len(karaktersor) - 1)]
+    return jelszo
+
+
 # Innen indul a program
 if __name__ == "__main__":
     if regisztracio():
-        print("Sikerült a regisztráció\n Most beléptetjük!")
+        print("Sikerült a regisztráció\n")
         if beleptetes():
-            print("Szoszi báttya!!")
+            print("Üdv a fedélzeten!")
         else:
-            print("NO YOU!")
+            print("nem sikerült a belépés")
     else:
         print("Sikertelen regisztráció\nPróbálja újra")
+
